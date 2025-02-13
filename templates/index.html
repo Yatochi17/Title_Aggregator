@@ -21,13 +21,18 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         h1 {
             font-size: 24px;
-            text-align: center;
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
             margin-bottom: 20px;
+        }
+        .loading-message {
+            font-size: 18px;
+            color: #888;
+            display: none;
         }
         .news-container {
             display: flex;
@@ -59,14 +64,34 @@
         }
         .error-message {
             color: red;
-            text-align: center;
             font-size: 16px;
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .pagination a {
+            padding: 10px 15px;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .pagination a:hover {
+            background: #0056b3;
+        }
+        .pagination a.disabled {
+            background: #ccc;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📰Latest News from Wired📰</h1>
+        <p id="loading" class="loading-message">Loading news articles, please wait...</p>
 
         {% if error %}
             <p class="error-message">{{ error }}</p>
@@ -82,6 +107,16 @@
                         {% endif %}
                     </div>
                 {% endfor %}
+            </div>
+
+            <div class="pagination">
+                {% if page > 1 %}
+                    <a href="/?page={{ page - 1 }}">&laquo; Previous</a>
+                {% else %}
+                    <a class="disabled">&laquo; Previous</a>
+                {% endif %}
+
+                <a href="/?page={{ page + 1 }}">Next &raquo;</a>
             </div>
         {% else %}
             <p class="error-message">No news articles found. Try refreshing later.</p>

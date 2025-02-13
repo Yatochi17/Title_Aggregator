@@ -13,10 +13,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def scrape_news():
+def scrape_news(page=1):
     driver = None
     try:
-        logger.info("Starting scrape_news function")
+        logger.info(f"Starting scrape_news function for page {page}")
 
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--disable-gpu")
@@ -42,7 +42,7 @@ def scrape_news():
             from webdriver_manager.chrome import ChromeDriverManager
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-        url = "https://www.wired.com/most-recent/"
+        url = f"https://www.wired.com/most-recent/page/{page}/"
         logger.info(f"Attempting to access URL: {url}")
 
         driver.get(url)
@@ -78,7 +78,7 @@ def scrape_news():
 
             logger.info(f"Processing {min(len(article_elements), 10)} articles")
 
-            for index, article in enumerate(article_elements[:10]):  # Limit to 10 articles
+            for index, article in enumerate(article_elements[:10]):  # Limit to 10 articles per page
                 try:
                     title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
                     title = title_element.text.strip()
@@ -119,7 +119,7 @@ def scrape_news():
 
 
 if __name__ == "__main__":
-    news = scrape_news()
+    news = scrape_news(page=1)
     print(f"\nTotal articles scraped: {len(news)}")
     if len(news) > 0:
         print("\nFirst few articles:")
@@ -128,4 +128,3 @@ if __name__ == "__main__":
             print(f"   Link: {article['link']}")
             if 'date' in article:
                 print(f"   Date: {article['date']}")
-
