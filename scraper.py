@@ -7,6 +7,7 @@ from selenium.common.exceptions import TimeoutException
 import os
 import time
 import logging
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,10 +19,11 @@ def scrape_news():
     try:
         logger.info("Starting scrape_news function")
 
+        # Optimized Chrome options for low memory usage
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless=new")  # Uses optimized headless mode
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless=new")  # Optimized headless mode
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument("--disable-software-rasterizer")
@@ -31,6 +33,7 @@ def scrape_news():
 
         logger.info("Chrome options configured")
 
+        # Set up ChromeDriver
         if 'DYNO' in os.environ:
             logger.info("Running on Heroku")
             chrome_options.binary_location = '/app/.chrome-for-testing/chrome-linux64/chrome'
@@ -41,7 +44,6 @@ def scrape_news():
             )
         else:
             logger.info("Running locally")
-            from webdriver_manager.chrome import ChromeDriverManager
             driver = webdriver.Chrome(
                 service=Service(ChromeDriverManager().install()),
                 options=chrome_options
@@ -83,9 +85,9 @@ def scrape_news():
                 logger.error("No articles found with any selector")
                 return []
 
-            logger.info(f"Processing {len(article_elements[:10])} articles")
+            logger.info(f"Processing {len(article_elements[:5])} articles")
 
-            for index, article in enumerate(article_elements[:10]):  # Only process 10 articles
+            for index, article in enumerate(article_elements[:5]):  # Only process 5 articles
                 try:
                     title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
                     title = title_element.text.strip()
@@ -118,7 +120,6 @@ def scrape_news():
 
         except Exception as e:
             logger.error(f"Error during scraping: {str(e)}")
-            logger.error(f"Page source: {driver.page_source[:1000]}...")
             return []
 
     except Exception as e:
@@ -133,13 +134,6 @@ def scrape_news():
 
 if __name__ == "__main__":
     news = scrape_news()
-    print(f"\nTotal articles scraped: {len(news)}")
-    if len(news) > 0:
-        print("\nFirst few articles:")
-        for i, article in enumerate(news[:3]):
-            print(f"\n{i + 1}. Title: {article['title']}")
-            print(f"   Link: {article['link']}")
-            if 'date' in article:
-                print(f"   Date: {article['date']}")
-
-
+    print(f"Total articles scraped: {len(news)}")
+    for i, article in enumerate(news[:3]):
+        print(f"{i + 1}. {article['title']} - {article['link']}")
