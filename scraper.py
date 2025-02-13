@@ -19,16 +19,15 @@ def scrape_news(page=1):
         logger.info(f"Starting scrape_news function for page {page}")
 
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--headless=new")  # Optimized headless mode
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-software-rasterizer")
-        chrome_options.add_argument("--disable-background-networking")
-        chrome_options.add_argument("--disable-default-apps")
-        chrome_options.add_argument("--disable-crash-reporter")
-        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--no-first-run")
+        chrome_options.add_argument("--disable-background-timer-throttling")
+        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+        chrome_options.add_argument("--disable-renderer-backgrounding")
+        chrome_options.add_argument("--disable-gpu")  # Save GPU memory
+        chrome_options.add_argument("--window-size=1280,1024")  # Reduce resolution for efficiency
 
         logger.info("Chrome options configured")
 
@@ -46,11 +45,11 @@ def scrape_news(page=1):
         logger.info(f"Attempting to access URL: {url}")
 
         driver.get(url)
-        driver.set_page_load_timeout(10)  # Limit page load time
-        time.sleep(2)
+        driver.set_page_load_timeout(8)  # Lower page timeout
+        time.sleep(1)  # Reduce sleep time
 
         articles = []
-        wait = WebDriverWait(driver, 5)  # Reduced wait time
+        wait = WebDriverWait(driver, 3)  # Reduce waiting time
 
         try:
             selectors = [
