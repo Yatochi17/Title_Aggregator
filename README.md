@@ -1,1 +1,1 @@
-Due to Heroku Free Version has a limit to process using RAM. the web only can show a few latest articles. I'm sorry for inconviniece due to time limit (please sponsor me premium version (jkjk))
+Due to Heroku Free Version has a limit to process using RAM and im using Flask & Selenium (takes a huge chunck of memory), the web only can show a few latest articles. I'm sorry for inconviniece due to time limit (please sponsor me premium version (jkjk))
