@@ -17,13 +17,13 @@ def index():
 
         if not articles:
             logger.warning("No articles were returned from scraper")
-            return render_template("index.html", articles=[], error="Unable to fetch news at this time.")
+            return render_template("index.html", articles=[], error="Unable to fetch news at this time. Please try again later.")
 
         logger.info(f"Successfully fetched {len(articles)} articles")
         return render_template("index.html", articles=articles)
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
-        return render_template("index.html", articles=[], error=str(e))
+        return render_template("index.html", articles=[], error="An error occurred while fetching news. Please try again later.")
 
 @app.route("/api/news")
 def api_news():
@@ -39,7 +39,7 @@ def api_news():
         return jsonify(articles)
     except Exception as e:
         logger.error(f"Error in api_news route: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An error occurred while fetching news. Please try again later."}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

@@ -19,16 +19,16 @@ def scrape_news():
         logger.info("Starting scrape_news function")
 
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--remote-debugging-port=9222')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument('--start-maximized')
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        chrome_options.add_argument(
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless=new")  # Optimized headless mode
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--disable-background-networking")
+        chrome_options.add_argument("--disable-default-apps")
+        chrome_options.add_argument("--disable-crash-reporter")
+        chrome_options.add_argument("--window-size=1920,1080")
 
         logger.info("Chrome options configured")
 
@@ -36,36 +36,23 @@ def scrape_news():
             logger.info("Running on Heroku")
             chrome_options.binary_location = '/app/.chrome-for-testing/chrome-linux64/chrome'
             chrome_service = Service('/app/.chrome-for-testing/chromedriver-linux64/chromedriver')
-            driver = webdriver.Chrome(
-                service=chrome_service,
-                options=chrome_options
-            )
+            driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
         else:
             logger.info("Running locally")
             from webdriver_manager.chrome import ChromeDriverManager
-            driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()),
-                options=chrome_options
-            )
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
         url = "https://www.wired.com/most-recent/"
         logger.info(f"Attempting to access URL: {url}")
 
         driver.get(url)
-        logger.info("Page loaded successfully")
-
-        # Add initial wait for page load
-        time.sleep(5)  # Give the page some time to load dynamic content
-
-        # Scroll down a bit to trigger lazy loading
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight/4);")
+        driver.set_page_load_timeout(10)  # Limit page load time
         time.sleep(2)
 
         articles = []
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 5)  # Reduced wait time
 
         try:
-            # Try multiple different selectors
             selectors = [
                 "article.summary-item",
                 "div[data-testid='SummaryItemContent']",
@@ -89,31 +76,17 @@ def scrape_news():
                 logger.error("No articles found with any selector")
                 return []
 
-            logger.info(f"Processing {len(article_elements)} articles")
+            logger.info(f"Processing {min(len(article_elements), 10)} articles")
 
-            for index, article in enumerate(article_elements):
+            for index, article in enumerate(article_elements[:10]):  # Limit to 10 articles
                 try:
-                    # Try different approaches to find the title and link
-                    try:
-                        title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
-                        title = title_element.text.strip()
-
-                        # Find the closest anchor tag
-                        link_element = article.find_element(By.CSS_SELECTOR, "a")
-                        link = link_element.get_attribute("href")
-                    except:
-                        # Alternative approach
-                        link_element = article.find_element(By.CSS_SELECTOR, "a[href*='/story/']")
-                        link = link_element.get_attribute("href")
-                        title = link_element.text.strip()
+                    title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
+                    title = title_element.text.strip()
+                    link_element = article.find_element(By.CSS_SELECTOR, "a")
+                    link = link_element.get_attribute("href")
 
                     if title and link:
-                        article_data = {
-                            "title": title,
-                            "link": link
-                        }
-
-                        # Try to get the date
+                        article_data = {"title": title, "link": link}
                         try:
                             date_element = article.find_element(By.CSS_SELECTOR, "time")
                             date = date_element.get_attribute("datetime")
@@ -133,8 +106,6 @@ def scrape_news():
 
         except Exception as e:
             logger.error(f"Error during scraping: {str(e)}")
-            # Print page source for debugging
-            logger.error(f"Page source: {driver.page_source[:1000]}...")
             return []
 
     except Exception as e:
