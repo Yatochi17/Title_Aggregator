@@ -21,13 +21,18 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         h1 {
             font-size: 24px;
-            text-align: center;
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
             margin-bottom: 20px;
+        }
+        .loading-message {
+            font-size: 18px;
+            color: #888;
+            display: none;
         }
         .news-container {
             display: flex;
@@ -59,14 +64,19 @@
         }
         .error-message {
             color: red;
-            text-align: center;
             font-size: 16px;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("loading").style.display = "block";
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>📰Latest News from Wired📰</h1>
+
 
         {% if error %}
             <p class="error-message">{{ error }}</p>
