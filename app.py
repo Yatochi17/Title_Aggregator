@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify
 from scraper import scrape_news
 import os
 import logging
@@ -12,33 +12,31 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     try:
-        page = request.args.get("page", default=1, type=int)
-        logger.info(f"Fetching articles for page {page}")
-        articles = scrape_news(page=page)
+        logger.info("Starting index route")
+        articles = scrape_news()
 
         if not articles:
             logger.warning("No articles were returned from scraper")
-            return render_template("index.html", articles=[], page=page, error="Unable to fetch news at this time. Please try again later.")
+            return render_template("index.html", articles=[], error="Unable to fetch news at this time. Please try again later.")
 
-        logger.info(f"Successfully fetched {len(articles)} articles for page {page}")
-        return render_template("index.html", articles=articles, page=page)
+        logger.info(f"Successfully fetched {len(articles)} articles")
+        return render_template("index.html", articles=articles)
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
-        return render_template("index.html", articles=[], page=1, error="An error occurred while fetching news. Please try again later.")
+        return render_template("index.html", articles=[], error="An error occurred while fetching news. Please try again later.")
 
 @app.route("/api/news")
 def api_news():
     try:
-        page = request.args.get("page", default=1, type=int)
-        logger.info(f"Fetching API articles for page {page}")
-        articles = scrape_news(page=page)
+        logger.info("Starting api_news route")
+        articles = scrape_news()
 
         if not articles:
             logger.warning("No articles were returned from API")
             return jsonify({"error": "No articles found"}), 404
 
-        logger.info(f"API returning {len(articles)} articles for page {page}")
-        return jsonify({"page": page, "articles": articles})
+        logger.info(f"API returning {len(articles)} articles")
+        return jsonify(articles)
     except Exception as e:
         logger.error(f"Error in api_news route: {str(e)}")
         return jsonify({"error": "An error occurred while fetching news. Please try again later."}), 500

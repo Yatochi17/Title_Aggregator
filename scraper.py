@@ -13,26 +13,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def scrape_news(page=1):
+def scrape_news():
     driver = None
     try:
-        logger.info(f"Starting scrape_news function for page {page}")
+        logger.info("Starting scrape_news function")
 
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--headless=new")  # Optimized headless mode
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--no-first-run")
-        chrome_options.add_argument("--disable-background-timer-throttling")
-        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        chrome_options.add_argument("--disable-renderer-backgrounding")
-        chrome_options.add_argument("--disable-gpu")  # Save GPU memory
-        chrome_options.add_argument("--window-size=1280,1024")  # Reduce resolution for efficiency
         chrome_options.add_argument("--disable-software-rasterizer")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--remote-debugging-port=9222")  # Allow debugging
-        chrome_options.add_argument("--user-data-dir=/tmp")  # Force a fresh session every run
+        chrome_options.add_argument("--disable-background-networking")
+        chrome_options.add_argument("--disable-default-apps")
+        chrome_options.add_argument("--disable-crash-reporter")
+        chrome_options.add_argument("--window-size=1920,1080")
 
         logger.info("Chrome options configured")
 
@@ -46,15 +42,15 @@ def scrape_news(page=1):
             from webdriver_manager.chrome import ChromeDriverManager
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-        url = f"https://www.wired.com/most-recent/page/{page}/"
+        url = "https://www.wired.com/most-recent/"
         logger.info(f"Attempting to access URL: {url}")
 
         driver.get(url)
-        driver.set_page_load_timeout(8)  # Lower page timeout
-        time.sleep(1)  # Reduce sleep time
+        driver.set_page_load_timeout(10)  # Limit page load time
+        time.sleep(2)
 
         articles = []
-        wait = WebDriverWait(driver, 3)  # Reduce waiting time
+        wait = WebDriverWait(driver, 5)  # Reduced wait time
 
         try:
             selectors = [
@@ -82,7 +78,7 @@ def scrape_news(page=1):
 
             logger.info(f"Processing {min(len(article_elements), 10)} articles")
 
-            for index, article in enumerate(article_elements[:10]):  # Limit to 10 articles per page
+            for index, article in enumerate(article_elements[:10]):  # Limit to 10 articles
                 try:
                     title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
                     title = title_element.text.strip()
@@ -123,7 +119,7 @@ def scrape_news(page=1):
 
 
 if __name__ == "__main__":
-    news = scrape_news(page=1)
+    news = scrape_news()
     print(f"\nTotal articles scraped: {len(news)}")
     if len(news) > 0:
         print("\nFirst few articles:")

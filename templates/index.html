@@ -66,27 +66,12 @@
             color: red;
             font-size: 16px;
         }
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .pagination a {
-            padding: 10px 15px;
-            border-radius: 5px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .pagination a:hover {
-            background: #0056b3;
-        }
-        .pagination a.disabled {
-            background: #ccc;
-            pointer-events: none;
-        }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("loading").style.display = "block";
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -107,16 +92,6 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-            </div>
-
-            <div class="pagination">
-                {% if page > 1 %}
-                    <a href="/?page={{ page - 1 }}">&laquo; Previous</a>
-                {% else %}
-                    <a class="disabled">&laquo; Previous</a>
-                {% endif %}
-
-                <a href="/?page={{ page + 1 }}">Next &raquo;</a>
             </div>
         {% else %}
             <p class="error-message">No news articles found. Try refreshing later.</p>
