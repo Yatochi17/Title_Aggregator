@@ -28,6 +28,11 @@ def scrape_news(page=1):
         chrome_options.add_argument("--disable-renderer-backgrounding")
         chrome_options.add_argument("--disable-gpu")  # Save GPU memory
         chrome_options.add_argument("--window-size=1280,1024")  # Reduce resolution for efficiency
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--disable-popup-blocking")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--remote-debugging-port=9222")  # Allow debugging
+        chrome_options.add_argument("--user-data-dir=/tmp")  # Force a fresh session every run
 
         logger.info("Chrome options configured")
 
