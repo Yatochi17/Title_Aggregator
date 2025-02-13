@@ -85,9 +85,9 @@ def scrape_news():
                 logger.error("No articles found with any selector")
                 return []
 
-            logger.info(f"Processing {len(article_elements[:5])} articles")
+            logger.info(f"Processing {len(article_elements[:10])} articles")
 
-            for index, article in enumerate(article_elements[:5]):  # Only process 5 articles
+            for index, article in enumerate(article_elements[:10]):  # Only process 5 articles
                 try:
                     title_element = article.find_element(By.CSS_SELECTOR, "h2, h3")
                     title = title_element.text.strip()
