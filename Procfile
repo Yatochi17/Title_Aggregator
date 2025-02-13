@@ -1,2 +1,3 @@
-web: gunicorn -w 1 -k gevent app:app
+web: gunicorn -w 1 -k gthread app:app
+
 
