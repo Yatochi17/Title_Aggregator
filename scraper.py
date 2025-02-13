@@ -128,3 +128,4 @@ if __name__ == "__main__":
             print(f"   Link: {article['link']}")
             if 'date' in article:
                 print(f"   Date: {article['date']}")
+
